@@ -1,10 +1,15 @@
+// Import libraries
+const VF = Vex.Flow;
+
+// Store the current rhythm pattern
+let currentRhythm = [];
+
 // Function to generate random rhythm
 function generateRhythm() {
-    const VF = Vex.Flow;
-
     // Clear previous output
     const outputDiv = document.getElementById("output");
     outputDiv.innerHTML = "";
+    currentRhythm = []; // Reset rhythm array
 
     // Create an SVG renderer and attach it to the output div
     const renderer = new VF.Renderer(outputDiv, VF.Renderer.Backends.SVG);
@@ -25,9 +30,10 @@ function generateRhythm() {
         let beats = 0;
         while (beats < 4) {
             const duration = durations[Math.floor(Math.random() * durations.length)];
-            const value = 4 / parseInt(duration);
+            const value = 4 / parseInt(duration); // Calculate beat value
             if (beats + value <= 4) {
                 beats += value;
+                currentRhythm.push(value); // Store rhythm in beats
                 notes.push(new VF.StaveNote({
                     clef: "treble",
                     keys: ["c/4"],
@@ -43,7 +49,24 @@ function generateRhythm() {
 
     const formatter = new VF.Formatter().joinVoices([voice]).format([voice], 500);
     voice.draw(context, stave);
+
+    // Enable the "Listen" button
+    document.getElementById("listen-btn").disabled = false;
 }
 
-// Attach event listener to the button
+// Function to play the rhythm
+function playRhythm() {
+    const click = new Tone.Player("https://cdn.jsdelivr.net/gh/robinpalmer/audio-circuit@main/ticks/click.mp3").toDestination();
+    const now = Tone.now();
+
+    // Schedule clicks based on the rhythm pattern
+    let time = now;
+    currentRhythm.forEach((beat) => {
+        click.start(time);
+        time += beat; // Increment time by the note duration
+    });
+}
+
+// Attach event listeners to buttons
 document.getElementById("generate-btn").addEventListener("click", generateRhythm);
+document.getElementById("listen-btn").addEventListener("click", playRhythm);
