@@ -56,14 +56,21 @@ function generateRhythm() {
 
 // Function to play the rhythm
 function playRhythm() {
-    const click = new Tone.Player("https://cdn.jsdelivr.net/gh/robinpalmer/audio-circuit@main/ticks/click.mp3").toDestination();
-    const now = Tone.now();
+    // Start the audio context (required by modern browsers)
+    Tone.start();
+
+    // Set the tempo (e.g., 120 beats per minute)
+    const tempo = 120;
+    const secondsPerBeat = 60 / tempo;
+
+    // Create a click sound
+    const click = new Tone.Player("https://freesound.org/data/previews/66/66717_931655-lq.mp3").toDestination();
 
     // Schedule clicks based on the rhythm pattern
-    let time = now;
+    let time = Tone.now();
     currentRhythm.forEach((beat) => {
-        click.start(time);
-        time += beat; // Increment time by the note duration
+        click.start(time); // Play the click
+        time += beat * secondsPerBeat; // Increment time by the beat duration in seconds
     });
 }
 
